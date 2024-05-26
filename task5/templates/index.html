@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Scraper</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            color: #4caf50;
+        }
+
+        form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 12px;
+            margin-top: 5px;
+            border: 2px solid #4caf50;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #45a049;
+        }
+
+        button {
+            padding: 12px 30px;
+            margin-top: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+            color: #4caf50;
+            font-size: 18px;
+        }
+
+        #data-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media only screen and (max-width: 600px) {
+            input[type="text"] {
+                width: 100%;
+            }
+
+            #data-table {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Scraper</h1>
+
+    <form id="scrapeForm">
+        <label for="url">Enter URL of the e-commerce website's category page:</label>
+        <input type="text" id="url" name="url" placeholder="http://example.com">
+        <button type="submit">Scrape</button>
+    </form>
+
+    <div id="message"></div>
+
+    <table id="data-table" style="display: none;">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody id="data-body">
+            {% for row in data %}
+            <tr>
+                <td>{{ row['Product Name'] }}</td>
+                <td>{{ row['Price'] }}</td>
+                <td>{{ row['Rating'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('scrapeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var url = document.getElementById('url').value;
+
+            fetch('/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var messageElement = document.getElementById('message');
+                messageElement.innerText = data.message || data.error;
+                messageElement.style.color = data.error ? '#f44336' : '#4caf50';
+
+                if (!data.error) {
+                    document.getElementById('data-table').style.display = 'table';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
